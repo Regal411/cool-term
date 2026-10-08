@@ -1,0 +1,27 @@
+---
+- name: Монтирование NFS-шары на CLI
+  hosts: clients
+  become: yes
+  vars:
+    nfs_src: "l-srv.au.team:/srv/nfsshare"
+    mount_point: /mnt/share
+
+  tasks:
+    - name: Установить NFS-клиент
+      ansible.builtin.shell: rpm -q nfs-clients || apt-get install -y nfs-clients
+      register: pkg
+      changed_when: "'installed' not in pkg.stdout"
+
+    - name: Создать точку монтирования
+      ansible.builtin.file:
+        path: "{{ mount_point }}"
+        state: directory
+        mode: "0777"
+
+    - name: Примонтировать шару и прописать в fstab
+      ansible.posix.mount:
+        src: "{{ nfs_src }}"
+        path: "{{ mount_point }}"
+        fstype: nfs
+        opts: defaults,_netdev
+        state: mounted
