@@ -1,0 +1,25 @@
+---
+- name: Отключение NFS-шары на CLI
+  hosts: clients
+  become: yes
+  vars:
+    mount_point: /mnt/share
+
+  tasks:
+    - name: Отмонтировать шару и убрать из fstab
+      ansible.posix.mount:
+        path: "{{ mount_point }}"
+        state: absent
+
+    - name: Удалить точку монтирования
+      ansible.builtin.file:
+        path: "{{ mount_point }}"
+        state: absent
+
+    - name: Удалить временные файлы Ansible
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /root/.ansible/tmp
+        - "/home/{{ ansible_user }}/.ansible/tmp"
