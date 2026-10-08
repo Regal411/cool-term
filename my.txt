@@ -1,0 +1,16 @@
+Маскарадинг на маршрутизаторе
+iptables -t nat -A POSTROUTING -o ens38 -j MASQUERADE 
+iptables-save > /etc/sysconfig/iptables 
+systemctl enable --now iptables
+
+В файле /etc/net/sysctl.conf поставить net.ipv4.ip_forward = 1
+Права sudo (делать на клиентах)
+control sudo public
+
+в файл /etc/sudoers.d/domain вписать
+%left ALL=(ALL) /bin/cat
+%admin ALL=(ALL) NOPASSWD: ALL
+visudo -c
+Монтирование шары
+В файле /etc/fstab
+//l-srv.au.team/sharesamba /mnt/sharesamba cifs users,username=administrator,password=P@ssw0rd,domain=AU,file_mode=0777,dir_mode=0777,_netdev,x-systemd.automount 0 0
